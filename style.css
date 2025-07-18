@@ -1,53 +1,212 @@
-/* Estilos personalizados */
+:root {
+  /* Colors */
+  --primary-bg-color: #1a202c;
+  --secondary-bg-color: #2d3748;
+  --accent-color: #059669; /* A nice green */
+  --text-color: #ffffff;
+  --light-text-color: #cccccc;
+  --border-color: #4a5568;
+  --input-bg-color: #4a5568;
+  --input-border-color: #718096;
+
+  /* Fonts */
+  --font-family: sans-serif;
+
+  /* Sizes */
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-4xl: 2.25rem;
+
+  --padding-sm: 0.5rem;
+  --padding-md: 1rem;
+  --padding-lg: 1.5rem;
+  --padding-xs: 0.25rem;
+
+  --border-radius-sm: 0.25rem;
+}
+
+/*
+==================================================================================================
+GLOBAL STYLES
+==================================================================================================
+*/
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--primary-bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+}
+
+#main-content {
+  height: 100vh;
+  display: flex; /* Ensure it's hidden by default */
+  flex-direction: column;
+}
+
+#main-content.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+/*
+==================================================================================================
+UPLOAD COMPONENT STYLES
+==================================================================================================
+*/
+
 #file-upload {
   display: none;
 }
 
 .custom-file-upload {
-  border: 1px solid #ccc;
+  border: 1px solid var(--light-text-color);
   display: inline-block;
-  padding: 6px 12px;
+  padding: var(--padding-sm) var(--padding-md);
   cursor: pointer;
-  background-color: #f0f0f0;
-  color: #333;
-  border-radius: 4px;
+  background-color: var(--secondary-bg-color);
+  color: var(--text-color);
+  border-radius: var(--border-radius-sm);
 }
 
 .custom-file-upload:hover {
-  background-color: #e0e0e0;
+  background-color: var(--accent-color);
+}
+
+/*
+==================================================================================================
+HEADER COMPONENT STYLES
+==================================================================================================
+*/
+
+header {
+  background-color: var(--accent-color);
+  padding: var(--padding-xs) var(--padding-md);
+}
+
+header h1 {
+  margin: 0;
+}
+
+/*
+==================================================================================================
+SIDEBAR COMPONENT STYLES
+==================================================================================================
+*/
+aside {
+  background-color: var(--secondary-bg-color);
+  overflow-y: auto;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
+
+aside nav ul li a {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+aside nav ul li a:hover {
+  color: var(--accent-color);
+}
+
+/*
+==================================================================================================
+STUDENT TABLE COMPONENT STYLES
+==================================================================================================
+*/
+
+#students-table-container {
+  max-height: 60vh; /* Adjust as needed */
+  overflow-y: scroll;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+}
+
+#students-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 #students-table th,
 #students-table td {
-  border-bottom: 1px solid #4a5568;
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--padding-md) var(--padding-lg);
+  text-align: left;
 }
 
 #students-table th {
-  background-color: #2d3748;
+  background-color: var(--secondary-bg-color);
 }
 
 #students-table tbody tr:hover {
-  background-color: #059669;
+  background-color: var(--accent-color);
 }
 
-/* Estilos para SweetAlert2 */
+#students-table tbody tr {
+  cursor: pointer;
+}
+
+/*
+==================================================================================================
+FORM ELEMENTS (SEARCH, SELECT)
+==================================================================================================
+*/
+
+.search-input,
+.filter-select {
+  background-color: var(--secondary-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--padding-sm) var(--padding-md);
+}
+
+.search-input::placeholder {
+  color: var(--light-text-color);
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+/*
+==================================================================================================
+SWEETALERT2 MODAL STYLES (DETAILS & SETTINGS)
+==================================================================================================
+*/
+
 .swal2-popup {
-  background-color: #2d3748 !important;
-  color: #fff !important;
+  background-color: var(--secondary-bg-color) !important;
+  color: var(--text-color) !important;
 }
 
 .swal2-title {
-  color: #fff !important;
+  color: var(--text-color) !important;
 }
 
 .swal2-html-container {
-  color: #ccc !important;
+  color: var(--light-text-color) !important;
 }
 
-.swal2-select {
-  background-color: #047857 !important;
-  color: #fff !important;
-  border: 1px solid #065f46 !important;
+.swal2-select,
+.swal2-input {
+  background-color: var(--input-bg-color) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--input-border-color) !important;
 }
 
 .swal-wide {
@@ -55,22 +214,40 @@
   max-width: 1200px;
 }
 
+.swal2-html-container .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .swal2-html-container .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*
+==================================================================================================
+GRADES TABLE COMPONENT STYLES (inside modal)
+==================================================================================================
+*/
+
 #grades-table th,
 #grades-table td {
-  border-bottom: 1px solid #5a6578;
-  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--padding-sm) var(--padding-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 250px; /* Adjust as needed */
+  max-width: 250px;
 }
 
 #grades-table th {
-  background-color: #065f46;
+  background-color: var(--accent-color);
   position: sticky;
   top: 0;
 }
 
 #grades-table tbody tr:hover {
-  background-color: #059669;
+  background-color: var(--accent-color);
 }

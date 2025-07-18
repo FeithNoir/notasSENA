@@ -1,3 +1,8 @@
+<!--
+==================================================================================================
+MAIN APPLICATION TEMPLATE
+==================================================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 
@@ -16,6 +21,11 @@
 
 <body class="bg-gray-900 text-white">
 
+    <!--
+    ==================================================================================================
+    UPLOAD COMPONENT
+    ==================================================================================================
+    -->
     <div id="upload-container" class="flex items-center justify-center h-screen">
         <div class="text-center">
             <h1 class="text-4xl font-bold mb-4">Analizador de Notas SENA</h1>
@@ -27,26 +37,45 @@
         </div>
     </div>
 
+    <!--
+    ==================================================================================================
+    MAIN CONTENT AREA
+    ==================================================================================================
+    -->
     <div id="main-content" class="hidden">
-        <header class="bg-gray-800 p-4 flex justify-between items-center">
+        <!-- Header Component -->
+        <header class="bg-green-700 py-1 px-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold">Analizador de Notas SENA</h1>
             <button id="toggle-sidebar" class="text-2xl lg:hidden"><i class="fas fa-bars"></i></button>
         </header>
 
         <div class="flex">
-            <aside id="sidebar" class="bg-gray-800 text-white w-64 min-h-screen p-4 hidden lg:block">
+            <!--
+            ==============================================================================================
+            SIDEBAR COMPONENT
+            ==============================================================================================
+            -->
+            <aside id="sidebar" class="bg-gray-800 text-white w-64 p-4 hidden lg:flex flex-col gap-4">
                 <nav>
-                    <ul>
-                        <li class="mb-4"><a href="#" id="upload-new" class="hover:text-gray-400"><i class="fas fa-upload mr-2"></i>Subir otro archivo</a></li>
-                        <li class="mb-4"><a href="#" id="student-analysis" class="hover:text-gray-400"><i class="fas fa-chart-bar mr-2"></i>Análisis de estudiantes</a></li>
-                        <li><a href="#" id="save-data" class="hover:text-gray-400"><i class="fas fa-save mr-2"></i>Guardar Datos</a></li>
+                    <ul class="flex flex-col gap-4">
+                        <li><a href="#" id="upload-new" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-upload"></i>Subir otro archivo</a></li>
+                        <li><a href="#" id="student-analysis" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-chart-bar"></i>Análisis</a></li>
+                        <li><a href="#" id="import-data" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-file-import"></i>Importar Datos</a></li>
+                        <li><a href="#" id="export-data" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-file-export"></i>Exportar Datos</a></li>
+                        <li><a href="#" id="settings-button" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-cog"></i>Configuración</a></li>
+                        <li><a href="#" id="help-button" class="hover:text-gray-400 flex items-center gap-2"><i class="fas fa-question-circle"></i>Ayuda</a></li>
                     </ul>
                 </nav>
             </aside>
 
-            <main id="content" class="flex-1 p-4">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                    <div class="relative mb-4 md:mb-0">
+            <!--
+            ==============================================================================================
+            STUDENT TABLE COMPONENT
+            ==============================================================================================
+            -->
+            <main id="content" class="flex-1 p-4 flex flex-col gap-4">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="relative">
                         <input type="text" id="search-student" placeholder="Buscar por nombre..."
                             class="bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -60,7 +89,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
+                <div id="students-table-container" class="overflow-x-auto">
                     <table id="students-table" class="min-w-full bg-gray-800 rounded-lg">
                         <thead>
                             <tr>
@@ -71,12 +100,18 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Student rows will be inserted here -->
                         </tbody>
                     </table>
                 </div>
             </main>
         </div>
 
+        <!--
+        ==================================================================================================
+        FOOTER COMPONENT
+        ==================================================================================================
+        -->
         <footer class="bg-gray-800 p-4 text-center">
             <p>Desarrollado por <a href="https://github.com/FeithNoir" target="_blank" class="text-blue-400 hover:underline">FeithNoir</a></p>
         </footer>
