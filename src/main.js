@@ -42,32 +42,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function processWorkbook(workbook) {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        const header = json[1];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); // Use defval to avoid undefined
+        const evidenceNames = json[2]; // Row 3 in Excel
         const evidences = [];
-        for (let i = 7; i < header.length; i++) {
-            if (json[0][i] && json[0][i].includes('Evidencia')) {
-                evidences.push({ name: json[1][i] || `Evidencia ${i - 6}`, index: i });
+        // Grades start at column H (index 7) and go to the end of the available headers.
+        for (let i = 7; i < evidenceNames.length; i++) {
+            // Only add columns that are under the "EVIDENCIAS" type and have a name.
+            if (evidenceNames[i]) {
+                evidences.push({ name: evidenceNames[i], index: i });
             }
         }
 
-        studentsData = json.slice(2).map(row => {
+        // Student data starts from the 4th row (index 3) as per user request.
+        studentsData = json.slice(3).map(row => {
+            // Skip empty rows
+            if (!row || !row[1]) return null;
+
+            const temporalGrades = [];
+            evidences.forEach(evidence => {
+                // Ensure grade is a string, default to "-" if empty/undefined
+                const grade = String(row[evidence.index] || "-");
+                temporalGrades.push({ name: evidence.name, grade: grade });
+            });
+            
             const student = {
                 firstName: row[1],
                 lastName: row[2],
                 documentType: row[3],
                 documentNumber: row[4],
                 status: row[6],
-                grades: []
+                grades: temporalGrades
             };
-
-            evidences.forEach(evidence => {
-                student.grades.push({ name: evidence.name, grade: row[evidence.index] });
-            });
-
             return student;
-        }).filter(s => s.firstName && s.lastName);
+        }).filter(Boolean); // filter(Boolean) removes null/undefined entries
 
         populateStatusFilter(studentsData);
         renderTable(studentsData);
