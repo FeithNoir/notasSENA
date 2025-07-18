@@ -11,6 +11,8 @@ Este es un prototipo de aplicación web para visualizar y analizar los datos de 
 - **Análisis de datos:** Proporciona un resumen estadístico básico de los datos cargados.
 - **Exportación de datos:** Permite descargar los datos procesados en formato JSON.
 - **Diseño responsivo:** La interfaz está diseñada para ser utilizada en dispositivos de escritorio y móviles.
+- **Filtro de evidencias:** Solo se incluyen en la tabla las evidencias que contienen un identificador de guía de aprendizaje (GA#-).
+- **Análisis de nombres de evidencia mejorado:** Se utiliza un método de división de cadenas (split) para analizar los nombres de las evidencias, mejorando la robustez frente a variaciones de formato.
 
 ## Posibles Futuras Características
 

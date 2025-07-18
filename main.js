@@ -45,10 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }); // Use defval to avoid undefined
         const evidenceNames = json[2]; // Row 3 in Excel
         const evidences = [];
+        const gaPattern = /GA\d+-/; // Regex to match "GA" followed by a number and a hyphen.
+
         // Grades start at column H (index 7) and go to the end of the available headers.
         for (let i = 7; i < evidenceNames.length; i++) {
-            // Only add columns that are under the "EVIDENCIAS" type and have a name.
-            if (evidenceNames[i]) {
+            // Only add columns that have a name and match the GA pattern.
+            if (evidenceNames[i] && gaPattern.test(evidenceNames[i])) {
                 evidences.push({ name: evidenceNames[i], index: i });
             }
         }
@@ -116,63 +118,158 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showStudentDetails(student) {
-        const approved = student.grades.filter(g => g.grade === 'A');
-        const pending = student.grades.filter(g => g.grade !== 'A');
-
-        const guides = [...new Set(student.grades.map(g => {
-            const match = g.name.match(/GA\d+/);
-            return match ? match[0] : null;
-        }).filter(g => g))];
-
-        let guideOptions = guides.map(g => `<option value="${g}">${g}</option>`).join('');
-
-        Swal.fire({
-            title: `${student.firstName} ${student.lastName}`,
-            html: `
-                <div class="text-left">
-                    <p><strong>Estado:</strong> ${student.status}</p>
-                    <div class="my-4">
-                        <select id="grade-filter" class="swal2-select">
-                            <option value="all">Todas</option>
-                            <option value="approved">Aprobadas</option>
-                            <option value="pending">Pendientes</option>
-                        </select>
-                        <select id="guide-filter" class="swal2-select ml-2">
-                            <option value="all">Todas las guías</option>
-                            ${guideOptions}
-                        </select>
-                    </div>
-                    <div id="grades-list" class="max-h-60 overflow-y-auto"></div>
-                </div>
-            `,
-            didOpen: () => {
-                const gradeFilter = document.getElementById('grade-filter');
-                const guideFilter = document.getElementById('guide-filter');
-                const gradesList = document.getElementById('grades-list');
-
-                function updateGradesList() {
-                    const filterValue = gradeFilter.value;
-                    const guideValue = guideFilter.value;
-                    let gradesToShow = [];
-
-                    if (filterValue === 'approved') gradesToShow = approved;
-                    else if (filterValue === 'pending') gradesToShow = pending;
-                    else gradesToShow = student.grades;
-
-                    if (guideValue !== 'all') {
-                        gradesToShow = gradesToShow.filter(g => g.name.includes(guideValue));
-                    }
-
-                    gradesList.innerHTML = gradesToShow.map(g => `<p>${g.name} - <strong>${g.grade}</strong></p>`).join('');
-                }
-
-                gradeFilter.addEventListener('change', updateGradesList);
-                guideFilter.addEventListener('change', updateGradesList);
-                updateGradesList();
-            }
-        });
+    function parseEvidenceName(name) {
+    // Split the name to separate the evidence type, description, and codes.
+    const parts = name.split(':');
+    if (parts.length < 2) {
+        return {
+            evidenceType: 'N/A',
+            description: name,
+            learningGuide: 'N/A',
+            subjectCode: 'N/A',
+            activityGroup: 'N/A',
+            activityCode: 'N/A'
+        };
     }
+
+    const evidenceType = parts[0].trim();
+    const rest = parts.slice(1).join(':').trim();
+
+    const descriptionParts = rest.split('.');
+    const description = descriptionParts[0].trim();
+    
+    const codeString = rest.substring(description.length).trim();
+    const codeParts = codeString.split('-').filter(p => p);
+
+    return {
+        evidenceType: evidenceType,
+        description: description,
+        learningGuide: codeParts[0] || 'N/A',
+        subjectCode: codeParts[1] || 'N/A',
+        activityGroup: codeParts[2] || 'N/A',
+        activityCode: codeParts[3] || 'N/A'
+    };
+}
+
+function showStudentDetails(student) {
+    const detailedGrades = student.grades.map(g => ({
+        ...parseEvidenceName(g.name),
+        grade: g.grade,
+        originalName: g.name
+    }));
+
+    const getUniqueValues = (key) => [...new Set(detailedGrades.map(g => g[key]))].sort();
+    const evidenceTypes = getUniqueValues('evidenceType');
+    const learningGuides = getUniqueValues('learningGuide');
+    const subjectCodes = getUniqueValues('subjectCode');
+    const activityGroups = getUniqueValues('activityGroup');
+    const activityCodes = getUniqueValues('activityCode');
+    const grades = getUniqueValues('grade');
+
+    const createOptions = (values) => values.map(v => `<option value="${v}">${v}</option>`).join('');
+
+    Swal.fire({
+        title: `${student.firstName} ${student.lastName}`,
+        html: `
+            <div class="text-left">
+                <p><strong>Estado:</strong> ${student.status}</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
+                    <select id="grade-filter" class="swal2-select">
+                        <option value="all">Todas las notas</option>
+                        ${createOptions(grades)}
+                    </select>
+                    <select id="evidence-type-filter" class="swal2-select">
+                        <option value="all">Todos los tipos</option>
+                        ${createOptions(evidenceTypes)}
+                    </select>
+                    <select id="learning-guide-filter" class="swal2-select">
+                        <option value="all">Todas las guías</option>
+                        ${createOptions(learningGuides)}
+                    </select>
+                    <select id="subject-code-filter" class="swal2-select">
+                        <option value="all">Todas las materias</option>
+                        ${createOptions(subjectCodes)}
+                    </select>
+                    <select id="activity-group-filter" class="swal2-select">
+                        <option value="all">Todos los grupos</option>
+                        ${createOptions(activityGroups)}
+                    </select>
+                    <select id="activity-code-filter" class="swal2-select">
+                        <option value="all">Todas las act.</option>
+                        ${createOptions(activityCodes)}
+                    </select>
+                </div>
+                <div class="overflow-x-auto max-h-96">
+                    <table id="grades-table" class="min-w-full bg-gray-700 text-sm">
+                        <thead>
+                            <tr class="bg-gray-600">
+                                <th class="py-2 px-3 text-left">Tipo Evidencia</th>
+                                <th class="py-2 px-3 text-left">Descripción</th>
+                                <th class="py-2 px-3 text-left">Guía</th>
+                                <th class="py-2 px-3 text-left">Materia</th>
+                                <th class="py-2 px-3 text-left">Grupo</th>
+                                <th class="py-2 px-3 text-left">Actividad</th>
+                                <th class="py-2 px-3 text-left">Nota</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `,
+        width: '90%',
+        customClass: {
+            popup: 'swal-wide',
+        },
+        didOpen: () => {
+            const filters = {
+                grade: document.getElementById('grade-filter'),
+                evidenceType: document.getElementById('evidence-type-filter'),
+                learningGuide: document.getElementById('learning-guide-filter'),
+                subjectCode: document.getElementById('subject-code-filter'),
+                activityGroup: document.getElementById('activity-group-filter'),
+                activityCode: document.getElementById('activity-code-filter'),
+            };
+            const gradesTableBody = document.querySelector('#grades-table tbody');
+
+            const renderGradesTable = () => {
+                const filterValues = {
+                    grade: filters.grade.value,
+                    evidenceType: filters.evidenceType.value,
+                    learningGuide: filters.learningGuide.value,
+                    subjectCode: filters.subjectCode.value,
+                    activityGroup: filters.activityGroup.value,
+                    activityCode: filters.activityCode.value,
+                };
+
+                const filteredGrades = detailedGrades.filter(g => {
+                    return Object.keys(filterValues).every(key => {
+                        return filterValues[key] === 'all' || String(g[key]) === filterValues[key];
+                    });
+                });
+
+                gradesTableBody.innerHTML = filteredGrades.map(g => `
+                    <tr class="border-b border-gray-600 hover:bg-gray-600">
+                        <td class="py-2 px-3" title="${g.evidenceType}">${g.evidenceType}</td>
+                        <td class="py-2 px-3" title="${g.description}">${g.description}</td>
+                        <td class="py-2 px-3">${g.learningGuide}</td>
+                        <td class="py-2 px-3">${g.subjectCode}</td>
+                        <td class="py-2 px-3">${g.activityGroup}</td>
+                        <td class="py-2 px-3">${g.activityCode}</td>
+                        <td class="py-2 px-3 text-center"><strong>${g.grade}</strong></td>
+                    </tr>
+                `).join('');
+            };
+
+            Object.values(filters).forEach(filter => {
+                filter.addEventListener('change', renderGradesTable);
+            });
+
+            renderGradesTable();
+        }
+    });
+}
 
     function saveData() {
         if (studentsData.length === 0) {
