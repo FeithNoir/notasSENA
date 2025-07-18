@@ -119,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function parseEvidenceName(name) {
-    // Split the name to separate the evidence type, description, and codes.
-    const parts = name.split(':');
-    if (parts.length < 2) {
+    // Regex to find the evidence code pattern (GA#-...)
+    const codeRegex = /(GA\d+-\d+-AA\d+-EV\d+)/;
+    const match = name.match(codeRegex);
+
+    if (!match) {
         return {
             evidenceType: 'N/A',
             description: name,
@@ -132,14 +134,22 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    const evidenceType = parts[0].trim();
-    const rest = parts.slice(1).join(':').trim();
+    const codeString = match[0];
+    const codeParts = codeString.split('-');
 
-    const descriptionParts = rest.split('.');
-    const description = descriptionParts[0].trim();
-    
-    const codeString = rest.substring(description.length).trim();
-    const codeParts = codeString.split('-').filter(p => p);
+    // Extract description and type
+    const parts = name.split(codeString);
+    let evidenceType = 'N/A';
+    let description = (parts[0] || '').trim();
+
+    if (description.includes(':')) {
+        const typeAndDesc = description.split(':');
+        evidenceType = typeAndDesc[0].trim();
+        description = (typeAndDesc[1] || '').trim();
+    } else {
+        // If there's no colon, assume the first part is the description
+        description = parts[0].replace(/^-/, '').trim();
+    }
 
     return {
         evidenceType: evidenceType,
