@@ -49,8 +49,8 @@ body {
 }
 
 #main-content {
-  height: 100vh;
-  display: flex; /* Ensure it's hidden by default */
+  flex: 1; /* Allow it to grow and fill available space */
+  display: flex; 
   flex-direction: column;
 }
 
@@ -128,7 +128,7 @@ STUDENT TABLE COMPONENT STYLES
 */
 
 #students-table-container {
-  max-height: 60vh; /* Adjust as needed */
+  max-height: 80vh; /* Adjust as needed */
   overflow-y: scroll;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
